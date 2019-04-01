@@ -1,0 +1,43 @@
+﻿@using SimchosAndContributors.Data
+@using homework_032519_SimchosAndContributors.Models
+@model ContributionsViewModel
+@{
+    ViewBag.Title = "Contributions";
+}
+<h2>Contributions for @Model.Simcha.Name</h2>
+
+<div class="row" style="margin-top:30px;">
+    <form action="/home/UpdateContributions" method="post">
+        <table class="table table-striped table-hover table-bordered">
+            <tr>
+                <th>Contribute</th>
+                <th>Name</th>
+                <th>Balance</th>
+                <th>Always Include</th>
+                <th>Amount</th>
+            </tr>
+            @{ int i = 0;}
+            @foreach (Contribution c in Model.Contributions)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" checked="@c.Contributed" value="true" name="conts[@i].Contributed" class="form-control" />
+                    </td>
+                    <td>@c.Name<input type="hidden" name="conts[@i].Name" value="@c.Name"></td>
+                    <td>@c.Balance.ToString("C") <input type="hidden" name="conts[@i].Balance" value="@c.Balance"></td>
+                    <td><span class="glyphicon @(c.AlwaysInclude ? "glyphicon-ok-sign" : "")" /></td>
+                    <td>
+                        <input type="text" class="form-control" value="@(c.Amount != 0 ? c.Amount: 5)"
+                               name="conts[@i].Amount" />
+                        <input type="hidden" name="conts[@i].AlwaysInclude" value="@c.AlwaysInclude" />
+                        <input type="hidden" name="conts[@i].ContributorId" value="@c.ContributorId" />
+                    </td>
+                </tr>
+                { i++; }
+            }
+
+        </table>
+        <input type="hidden" value="@Model.Simcha.Id" name="simchaId"/>
+        <button class="btn btn-primary">Update</button>
+    </form>
+</div>

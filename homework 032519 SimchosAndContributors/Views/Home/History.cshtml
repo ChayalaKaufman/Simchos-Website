@@ -1,0 +1,28 @@
+﻿@using SimchosAndContributors.Data
+@using homework_032519_SimchosAndContributors.Models;
+@model HistoryView
+@{
+    ViewBag.Title = "History";
+}
+
+<h2>History for @Model.ContributorName</h2>
+<h3>Total Balance: @Model.Balance.ToString("C")</h3>
+<div class="row" style="margin-top:30px;">
+    <table class="table table-striped table-hover table-bordered">
+        <tr>
+            <th>Action</th>
+            <th>Date</th>
+            <th>Amount</th>
+        </tr>
+        @foreach (History h in Model.History)
+        {
+            <tr>
+                <td>@h.Action</td>
+                <td>@h.Date.ToLongDateString()</td>
+                <td>@h.Amount.ToString("C")</td>
+            </tr>
+        }
+    </table>
+    <a href="/home/contributors" class="btn btn-info">Back to Contributors</a>
+</div>
+

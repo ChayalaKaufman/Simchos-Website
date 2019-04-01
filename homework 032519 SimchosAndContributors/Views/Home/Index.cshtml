@@ -1,31 +1,64 @@
-﻿@{
+﻿@using SimchosAndContributors.Data
+@using homework_032519_SimchosAndContributors.Models
+@model SimchosViewModel
+@{
     ViewBag.Title = "Home Page";
 }
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+<h1>Simchos</h1>
+
+<button class="btn btn-info" id="add">Add Simcha</button>
+<div class="row" style="margin-top:30px;">
+    <table class="table table-striped table-hover table-bordered">
+        <tr>
+            <th>Contributions</th>
+            <th>Simcha Name</th>
+            <th>Contributor Count</th>
+            <th>Total</th>
+            <th>Date</th>
+        </tr>
+        @foreach (SimchaView s in Model.Simchos)
+        {
+            if (s != null)
+            {
+                <tr>
+                    <td><a href="home/contributions?id=@s.Id&name=@s.Name" class="btn btn-primary">Contributions</a></td>
+                    <td>@s.Name</td>
+                    <td>@s.TotalContributed/@Model.TotalContributors</td>
+                    <td>@s.Total.ToString("C")</td>
+                    <td>@s.Date.ToLongDateString()</td>
+                </tr>
+            }
+        }
+    </table>
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+<div id="add-modal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Simcha</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="/home/addSimcha">
+                <div class="modal-body">
+                    <label>Simcha Name</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Name" /><br />
+                    <input type="date" class="form-control" name="date" id="date" style="margin-top:10px;" /><br />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="add-simcha">Add</button>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal" id="cancel">Cancel</button>
+                </div>
+            </form>
+
+        </div>
     </div>
 </div>
+
+
+@section scripts{
+    <script src="/Scripts/simchos.js"></script>
+}
