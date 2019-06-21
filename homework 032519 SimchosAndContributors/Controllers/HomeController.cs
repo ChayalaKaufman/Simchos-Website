@@ -80,16 +80,19 @@ namespace homework_032519_SimchosAndContributors.Controllers
         }
 
         [HttpPost]
-        public ActionResult UpdateContributions(List<Contribution> conts, int SimchaId)
+        public ActionResult UpdateContributions(List<ContributionInclusion> conts, int SimchaId)
         {
             db.UpdateContributions(conts, SimchaId);
             return Redirect("/");
         }
 
-        //public ActionResult Search(string searchText)
+        //[HttpPost]
+        //public ActionResult UpdateContributions(List<ContributionInclusion> contributors, int simchaId)
         //{
-        //    IEnumerable<Contributor> conts = db.Search(searchText);
-        //    Contributors(conts);
+        //    var mgr = new DBManager(Properties.Settings.Default.ConStr);
+        //    mgr.UpdateContributions(simchaId, contributors);
+        //    TempData["Message"] = "Simcha updated successfully";
+        //    return RedirectToAction("Index");
         //}
     }
 }

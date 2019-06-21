@@ -193,7 +193,6 @@ namespace SimchosAndContributors.Data
             SqlCommand cmd = conn.CreateCommand();
             cmd.CommandText = @"select COUNT(*) As 'Count', ISNULL(SUM(Amount), 0) AS 'Total' from 
                                     ContributionsSimchos where SimchaId = @id";
-
             conn.Open();
             foreach (Simcha s in simchos)
             {
@@ -336,8 +335,8 @@ namespace SimchosAndContributors.Data
             conn.Close();
             conn.Dispose();
             historyView.History.AddRange(GetDonations(id));
-            historyView.History.OrderByDescending(h => h.Date);
-
+            List<History> hist = historyView.History.OrderByDescending(h => h.Date).ToList();
+            historyView.History = hist;
             foreach (History h in historyView.History)
             {
                 historyView.Balance += h.Amount;
@@ -370,105 +369,74 @@ namespace SimchosAndContributors.Data
             return history;
         }
 
-        public void UpdateContributions(List<Contribution> contributions, int simchaId)
+
+        public void UpdateContributions(IEnumerable<ContributionInclusion> contributors, int simchaId)
         {
-            IEnumerable<Contribution> filtered = contributions.Where(c => c.Contributed == true);
-            List<Contribution> conts = filtered.ToList();
-
-            var conn = new SqlConnection(_connectionString);
-            var cmd = conn.CreateCommand();
-
-            cmd.CommandText = @"SELECT * FROM ContributionsSimchos where SimchaId = @simchaId";
-            cmd.Parameters.AddWithValue("@simchaId", simchaId);
-            conn.Open();
-            var reader = cmd.ExecuteReader();
-            var existingDonations = new List<Donation>();
-            while (reader.Read())
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
             {
-                if (reader["ContributorId"] == DBNull.Value)
-                {
-                    AddDonations(conts, simchaId);
-                    return;
-                }
-                existingDonations.Add(new Donation
-                {
-                    ContributorId = (int)reader["ContributorId"],
-                    Amount = (decimal)reader["Amount"],
-                    Date = (DateTime)reader["Date"]
-                });
-            }
-            conn.Close();
-            conn.Dispose();
-            List<Contribution> updates = new List<Contribution>();
-            List<Contribution> delete = new List<Contribution>();
+                cmd.CommandText = "DELETE FROM ContributionsSimchos WHERE SimchaId = @simchaId";
+                cmd.Parameters.AddWithValue("@simchaId", simchaId);
 
-            foreach (var cont in conts)
-            {
-                Donation don = existingDonations.Find(d => d.ContributorId == cont.ContributorId);
-                if (don != null)
+                connection.Open();
+                cmd.ExecuteNonQuery();
+
+                cmd.Parameters.Clear();
+                cmd.CommandText = @"INSERT INTO ContributionsSimchos (SimchaId, ContributorId, Amount, Date)
+                                    VALUES (@simchaId, @contributorId, @amount,@date)";
+                foreach (ContributionInclusion contributor in contributors.Where(c => c.Include))
                 {
-                    if (cont.Amount != don.Amount)
-                    {
-                        updates.Add(cont);
-                    }
-                    delete.Add(cont);
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@simchaId", simchaId);
+                    cmd.Parameters.AddWithValue("@contributorId", contributor.ContributorId);
+                    cmd.Parameters.AddWithValue("@amount", contributor.Amount);
+                    cmd.Parameters.AddWithValue("@date", DateTime.Now);
+
+                    cmd.ExecuteNonQuery();
                 }
             }
-
-            foreach (Contribution c in delete)
-            {
-                conts.Remove(c);
-            }
-            if (updates.Count > 0)
-            {
-                EditDonations(updates, simchaId);
-            }
-            if (conts.Count > 0)
-            {
-                AddDonations(conts, simchaId);
-            }
         }
 
-        private void AddDonations(List<Contribution> conts, int simchaId)
-        {
-            var conn = new SqlConnection(_connectionString);
-            var cmd = conn.CreateCommand();
+        //private void AddDonations(List<Contribution> conts, int simchaId)
+        //{
+        //    var conn = new SqlConnection(_connectionString);
+        //    var cmd = conn.CreateCommand();
 
-            cmd.CommandText = @"INSERT INTO ContributionsSimchos VALUES (@contId,@simchaId,@amt,@date)";
-            conn.Open();
-            foreach (var cont in conts)
-            {
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@contId", cont.ContributorId);
-                cmd.Parameters.AddWithValue("@simchaId", simchaId);
-                cmd.Parameters.AddWithValue("@amt", cont.Amount);
-                cmd.Parameters.AddWithValue("@date", DateTime.Now);
-                cmd.ExecuteNonQuery();
-            }
-            conn.Close();
-            conn.Dispose();
-        }
+        //    cmd.CommandText = @"INSERT INTO ContributionsSimchos VALUES (@contId,@simchaId,@amt,@date)";
+        //    conn.Open();
+        //    foreach (var cont in conts)
+        //    {
+        //        cmd.Parameters.Clear();
+        //        cmd.Parameters.AddWithValue("@contId", cont.ContributorId);
+        //        cmd.Parameters.AddWithValue("@simchaId", simchaId);
+        //        cmd.Parameters.AddWithValue("@amt", cont.Amount);
+        //        cmd.Parameters.AddWithValue("@date", DateTime.Now);
+        //        cmd.ExecuteNonQuery();
+        //    }
+        //    conn.Close();
+        //    conn.Dispose();
+        //}
 
-        private void EditDonations(List<Contribution> updates, int simchaId)
-        {
-            var conn = new SqlConnection(_connectionString);
-            var cmd = conn.CreateCommand();
-            cmd.CommandText = @"UPDATE ContributionsSimchos
-                SET amount = @amt, date=@date
-                WHERE ContributorId = @contId AND SimchaId = @simchaId";
-            conn.Open();
-            foreach (var cont in updates)
-            {
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@contId", cont.ContributorId);
-                cmd.Parameters.AddWithValue("@simchaId", simchaId);
-                cmd.Parameters.AddWithValue("@amt", cont.Amount);
-                cmd.Parameters.AddWithValue("@date", DateTime.Now);
-                cmd.ExecuteNonQuery();
-            }
-            conn.Close();
-            conn.Dispose();
-        }
+        //private void EditDonations(List<Contribution> updates, int simchaId)
+        //{
+        //    var conn = new SqlConnection(_connectionString);
+        //    var cmd = conn.CreateCommand();
+        //    cmd.CommandText = @"UPDATE ContributionsSimchos
+        //        SET amount = @amt, date=@date
+        //        WHERE ContributorId = @contId AND SimchaId = @simchaId";
+        //    conn.Open();
+        //    foreach (var cont in updates)
+        //    {
+        //        cmd.Parameters.Clear();
+        //        cmd.Parameters.AddWithValue("@contId", cont.ContributorId);
+        //        cmd.Parameters.AddWithValue("@simchaId", simchaId);
+        //        cmd.Parameters.AddWithValue("@amt", cont.Amount);
+        //        cmd.Parameters.AddWithValue("@date", DateTime.Now);
+        //        cmd.ExecuteNonQuery();
+        //    }
+        //    conn.Close();
+        //    conn.Dispose();
+        //}
 
         public decimal GetTotalOnHand()
         {

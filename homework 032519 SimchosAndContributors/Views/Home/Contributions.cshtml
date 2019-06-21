@@ -21,15 +21,15 @@
             {
                 <tr>
                     <td>
-                        <input type="checkbox" checked="@c.Contributed" value="true" name="conts[@i].Contributed" class="form-control" />
+                        <input type="checkbox" checked="@c.Contributed" value="true" name="conts[@i].Include" class="form-control" />
                     </td>
-                    <td>@c.Name<input type="hidden" name="conts[@i].Name" value="@c.Name"></td>
-                    <td>@c.Balance.ToString("C") <input type="hidden" name="conts[@i].Balance" value="@c.Balance"></td>
+                    <td>@c.Name@*<input type="hidden" name="conts[@i].Name" value="@c.Name">*@</td>
+                    <td>@c.Balance.ToString("C") @*<input type="hidden" name="conts[@i].Balance" value="@c.Balance">*@</td>
                     <td><span class="glyphicon @(c.AlwaysInclude ? "glyphicon-ok-sign" : "")" /></td>
                     <td>
                         <input type="text" class="form-control" value="@(c.Amount != 0 ? c.Amount: 5)"
                                name="conts[@i].Amount" />
-                        <input type="hidden" name="conts[@i].AlwaysInclude" value="@c.AlwaysInclude" />
+                        @*<input type="hidden" name="conts[@i].AlwaysInclude" value="@c.AlwaysInclude" />*@
                         <input type="hidden" name="conts[@i].ContributorId" value="@c.ContributorId" />
                     </td>
                 </tr>

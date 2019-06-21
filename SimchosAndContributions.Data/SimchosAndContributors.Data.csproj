@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contribution.cs" />
+    <Compile Include="ContributionInclusion.cs" />
     <Compile Include="DBManager.cs" />
     <Compile Include="Contributor.cs" />
     <Compile Include="Deposit.cs" />

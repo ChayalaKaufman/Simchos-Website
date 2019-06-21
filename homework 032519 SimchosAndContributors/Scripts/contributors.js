@@ -13,13 +13,6 @@
     $("#add-person").on('click', function () {
         $("#add-modal").modal('hide');
     })
-    
-    //$("table").on('click', '.history', function () {
-    //    const button = $(this);
-    //    const id = button.data('id');
-    //    ppl = ppl.filter(p => p.id !== id);
-    //    fillTable();
-    //})
 
     $(".edit").on('click', function () {
         const button = $(this);
@@ -35,7 +28,7 @@
         $("#last-name2").val(lastName);
         $("#cell-number2").val(cellNumber);
         $("#date-created2").val(dateCreated);
-        //$("#alwaysInclude").val(alwaysInclude);
+        //$("#alwaysInclude").prop('checked', alwaysInclude);
         $("#edit-modal").modal();
     })
 
